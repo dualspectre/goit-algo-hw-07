@@ -37,21 +37,22 @@ class Record:
 
     # Method to add a phone number
     def add_phone(self, phone):
-        self.phones.append(Phone(phone))
+        new_phone = Phone(phone)
+        self.phones.append(new_phone)
 
     # Method to remove a phone number
     def remove_phone(self, phone):
         found_phone = self.find_phone(phone)
         if found_phone:
             self.phones.remove(found_phone)
+        else:
+            raise ValueError("Phone number not found")
 
     # Method to edit a phone number
     def edit_phone(self, old_phone, new_phone):
-        for i, p in enumerate(self.phones):
-            if p.value == old_phone:
-                self.phones[i] = Phone(new_phone)
-                return
-        raise ValueError("Old phone number not found")
+        self.remove_phone(old_phone)
+        self.add_phone(new_phone)
+        
     
     # Method to find a phone number
     def find_phone(self, phone):
@@ -64,7 +65,8 @@ class Record:
         self.birthday = Birthday(birthday)
 
     def __str__(self):
-        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday.value if self.birthday else 'N/A'}"
+        phones = ', '.join(str(phone) for phone in self.phones)
+        return f"name: {self.name.value}, phones: {phones}, birthday: {self.birthday.value if self.birthday else 'N/A'}"
 
 class AddressBook(UserDict):
     
