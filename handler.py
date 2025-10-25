@@ -74,7 +74,14 @@ def show_phone_number(args, book: AddressBook) -> str:
     return f"{name}: {[str(phone) for phone in book.data[name].phones]}"
 
 @input_error
+# function of adding a birthday to a contact
 def add_birthday(args, book: AddressBook):
+    """
+    Adds a birthday to a contact.
+    Input: args - list of arguments, book - AddressBook instance
+
+    Return: str - status of adding birthday operation
+    """
     name, birthday, *_ = args
     if name not in book.data:
         raise KeyError
@@ -83,7 +90,13 @@ def add_birthday(args, book: AddressBook):
         return "Birthday added."
 
 @input_error
+# function of showing a contact's birthday
 def show_birthday(args, book: AddressBook):
+    """
+    Shows a contact's birthday.
+    input: args - list of arguments, book - AddressBook instance
+    Return: str - the contact's birthday or an error message
+    """
     name, *_ = args
     if name not in book.data:
         raise KeyError
@@ -96,7 +109,7 @@ def birthdays(args, book: AddressBook):
     """
     Shows upcoming birthdays from the AddressBook.
     Input: args - list of arguments, book - AddressBook instance
-    
+
     Return: str - upcoming birthdays or an error message
     """
     return book.get_upcoming_birthdays()
