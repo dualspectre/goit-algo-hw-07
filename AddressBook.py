@@ -22,12 +22,11 @@ class Birthday(Field):
 
     def __init__(self, value):
         try:
-            self.value = datetime.strptime(value, "%Y.%m.%d").date()
+            datetime.strptime(value, "%d.%m.%Y")
+            super().__init__(value)
         except ValueError:
-            raise ValueError("Use YYYY.MM.DD format")
+            raise ValueError("Invalid data format. Use DD.MM.YYYY format")
     
-    def __str__(self):
-        return self.value.strftime("%Y.%m.%d")    
 
 class Record:
     def __init__(self, name):
@@ -43,16 +42,19 @@ class Record:
     # Method to remove a phone number
     def remove_phone(self, phone):
         found_phone = self.find_phone(phone)
-        if found_phone:
+        if found_phone is not None:
             self.phones.remove(found_phone)
         else:
             raise ValueError("Phone number not found")
 
     # Method to edit a phone number
     def edit_phone(self, old_phone, new_phone):
-        self.remove_phone(old_phone)
-        self.add_phone(new_phone)
-        
+        founded_phone = self.find_phone(old_phone)
+        if founded_phone is None:
+            raise KeyError
+        else:
+            self.add_phone(new_phone)
+            self.remove_phone(old_phone)
     
     # Method to find a phone number
     def find_phone(self, phone):
@@ -66,7 +68,7 @@ class Record:
 
     def __str__(self):
         phones = ', '.join(str(phone) for phone in self.phones)
-        return f"name: {self.name.value}, phones: {phones}, birthday: {str(self.birthday) if self.birthday else 'N/A'}"
+        return f"name: {self.name.value}, phones: {phones}, birthday: {self.birthday}"
 
 class AddressBook(UserDict):
     
@@ -96,14 +98,16 @@ class AddressBook(UserDict):
         today = date.today()
     
         for name, record in self.data.items():
-            birthday_this_year = record.birthday.value.replace(year=today.year)
+            if record.birthday is None:
+                continue
+            birthday_this_year = datetime.strptime(record.birthday.value, "%d.%m.%Y").replace(year=today.year).date()
             
             if (birthday_this_year - today).days < 0:
                 birthday_this_year = birthday_this_year.replace(year=today.year + 1)
 
             if 0 <= (birthday_this_year - today).days <= 7:
                 birthday_this_year = self.__adjust_for_weekend(birthday_this_year)
-                congratulation_date_str = birthday_this_year.strftime("%Y.%m.%d")
+                congratulation_date_str = birthday_this_year.strftime("%d.%m.%Y")
                 upcoming_birthdays.append({"name": name, "birthday": congratulation_date_str})
         return upcoming_birthdays
         

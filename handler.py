@@ -6,7 +6,7 @@ def input_error(func):
         try:
             return func(*args, **kwargs)
         except ValueError as ve:
-            return f"Invalid data forma. {ve}"
+            return f"{ve}"
         except IndexError:
             return "Not enough arguments provided."
         except KeyError:
@@ -32,16 +32,18 @@ def add_contact(args, book: AddressBook) -> str:
     Adds a new contact to the contacts dictionary.
     Input: args - list of arguments, contacts - dictionary of contacts
 
-    Return: bool - True if contact was added, False otherwise
+    Return: message - status of add operation
     """
     name, phone, *_ = args
-    if name in book.data:
-        book.data[name].add_phone(phone)
-    else:
-        book.data[name] = Record(name)
-        book.data[name].add_phone(phone)
-    return "Contact added."
-    
+    record = book.find(name)
+    message = "Contact updated."
+    if record is None:
+        record = Record(name)
+        book.add_record(record)
+        message = "Contact added."
+    if phone:
+        record.add_phone(phone)
+    return message
 
 #function of changing a contact
 @input_error
@@ -53,11 +55,11 @@ def change_contact(args, book: AddressBook) -> str:
     Return: str - status of change operation
     """
     name, old_phone, new_phone, *_ = args
-
-    if name not in book.data:
+    record = book.find(name)
+    if record is None:
         raise KeyError
     else:
-        book.data[name].edit_phone(old_phone, new_phone)
+        record.edit_phone(old_phone, new_phone)
         return "Contact changed."
     
 
@@ -98,10 +100,11 @@ def show_birthday(args, book: AddressBook):
     Return: str - the contact's birthday or an error message
     """
     name, *_ = args
-    if name not in book.data:
+    record = book.find(name)
+    if record is None:
         raise KeyError
     else:
-        return f"{name}: {book.data[name].birthday}"
+        return f"{name}: {record.birthday}"
 
 @input_error
 # function of showing upcoming birthdays
